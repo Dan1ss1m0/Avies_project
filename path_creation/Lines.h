@@ -4,24 +4,28 @@
 #include "libs.h"
 #include "structs.h"
 
-class Line
-{
+//base calass for trajectory construction classes
+class Line {
 protected:
-    // длина шага цепи в метрах
-    float path_step;
+    double path_step; // длина шага цепи в метрах
+    std::string files_addres;
     std::vector<Vec3D> cruve;
     std::vector<Vec3D> points;
+
 public:
-    std::vector<Vec3D> get_path()
-    {
+    std::vector<Vec3D> get_path() {
         return points;
     }
+
+    virtual void build() {}
 };
 
-class Polyline: public Line{
+//calass for polyline-trajectory building
+class Polyline : public Line {
 public:
-    explicit Polyline(const std::vector<Vec3D>& points_, float ps=10) {
+    Polyline(const std::vector<Vec3D> &points_, std::string f_add, double ps = 10) {
         points = points_;
+        files_addres = f_add;
         path_step = ps;
 
         if (points_.size() < 2) {
@@ -29,75 +33,75 @@ public:
         }
         build();
     }
-    Polyline () = default;
+
+    Polyline() = default;
 
 private:
-    void build()
-    {
+    void build() {
         for (int j = 0; j < points.size() - 1; j++) {
             int sampling = points[j].lenght(points[j + 1]) / path_step;
-            auto step = float(1. / sampling);
+            if (!sampling)
+                sampling = 1;
 
-            double dx = (points[j + 1].vec2D.x - points[j].vec2D.x) / sampling;
-            double dy = (points[j + 1].vec2D.y - points[j].vec2D.y) / sampling;
-            double dh = (points[j + 1].H - points[j].H) / sampling;
+            double dx = (points[j + 1].x - points[j].x) / sampling;
+            double dy = (points[j + 1].y - points[j].y) / sampling;
+            double dh = (points[j + 1].h - points[j].h) / sampling;
 
-            for (int i = 0; i <= sampling; ++i)
-            {
-                cruve.push_back( Vec3D{points[j].vec2D.x + i * dx, points[j].vec2D.y + i * dy, points[j].H + i * dh});
+            for (int i = 0; i <= sampling; ++i) {
+                cruve.push_back(Vec3D{points[j].x + i * dx, points[j].y + i * dy, points[j].h + i * dh});
             }
         }
 
-
         std::ofstream file;
-        file.open("/home/crucian/CLionProjects/FlightController/log_Polyline.txt");
+        file.open(files_addres);
         for (auto &i: cruve)
-            file << std::to_string(i.x()) << " " << std::to_string(i.y()) << " " << std::to_string(i.h()) << std::endl;
+            file << std::to_string(i.x) << " " << std::to_string(i.y) << " " << std::to_string(i.h) << std::endl;
         file.close();
     }
 };
 
-class CatmullROM: public Line{
+//calass for CatmullROM-curve-trajectory building
+class CatmullROM : public Line {
 public:
-    explicit CatmullROM(const std::vector<Vec3D>& points_, float ps=10) : start_p(points_[0].make_similar()),
-                                                                          end_p(points_[points_.size() - 1].make_similar()) {
+    CatmullROM(const std::vector<Vec3D> &points_, std::string f_add, double ps = 10) : start_p(
+            points_[0].make_similar()),
+                                                                                       end_p(points_[points_.size() -
+                                                                                                     1].make_similar()) {
         points = points_;
+        files_addres = f_add;
         path_step = ps;
+
         if (points_.size() < 2) {
             throw "InitError: at least 2 points are required to construct the curve";
         }
-        build_curve2D();
+        build();
     }
-    CatmullROM () {}
+
+    CatmullROM() {}
 
 private:
     Vec3D start_p, end_p;
 
-    void build_curve2D();
+    void build();
 
-    static void InitCubicPoly(float x0, float x1, float t0, float t1, CubicPoly &p) {
+    static void InitCubicPoly(double x0, double x1, double t0, double t1, CubicPoly &p) {
         p.c0 = x0;
         p.c1 = t0;
         p.c2 = -3 * x0 + 3 * x1 - 2 * t0 - t1;
         p.c3 = 2 * x0 - 2 * x1 + t0 + t1;
     }
 
-    static void InitCatmullRom(float x0, float x1, float x2, float x3, CubicPoly &p) {
-        // standard Catmull-Rom spline: interpolate between x1 and x2 with previous/following points x0/x3
-        // (we don't need this here, but it's for illustration)
-        // Catmull-Rom with tension 0.5
-        InitCubicPoly(x1, x2, 0.5f * (x2 - x0), 0.5f * (x3 - x1), p);
-    }
+    static void InitNonuniformCatmullRom(double x0, double x1, double x2, double x3, double dt0, double dt1, double dt2,
+                                         CubicPoly &p);
 
-    static void InitNonuniformCatmullRom(float x0, float x1, float x2, float x3, float dt0, float dt1, float dt2, CubicPoly &p);
-
-    static float VecDistSquared(const Vec2D &p, const Vec2D &q) {
-        float dx = q.x - p.x;
-        float dy = q.y - p.y;
+    static float VecDistSquared(const Vec3D &p, const Vec3D &q) {
+        double dx = q.x - p.x;
+        double dy = q.y - p.y;
         return dx * dx + dy * dy;
     }
 
-    static void InitCentripetalCR(const Vec2D &p0, const Vec2D &p1, const Vec2D &p2, const Vec2D &p3, CubicPoly &px, CubicPoly &py);
+    static void
+    InitCentripetalCR(const Vec3D &p0, const Vec3D &p1, const Vec3D &p2, const Vec3D &p3, CubicPoly &px, CubicPoly &py);
 };
 
 #endif //FLIGHTCONTROLLER_LINES_H
