@@ -37,9 +37,9 @@ public:
     Polyline() = default;
 
 private:
-    void build() {
+    void build() override {
         for (int j = 0; j < points.size() - 1; j++) {
-            int sampling = points[j].lenght(points[j + 1]) / path_step;
+            int sampling = points[j].lengh(points[j + 1]) / path_step;
             if (!sampling)
                 sampling = 1;
 
@@ -48,7 +48,7 @@ private:
             double dh = (points[j + 1].h - points[j].h) / sampling;
 
             for (int i = 0; i <= sampling; ++i) {
-                cruve.push_back(Vec3D{points[j].x + i * dx, points[j].y + i * dy, points[j].h + i * dh});
+                cruve.emplace_back(points[j].x + i * dx, points[j].y + i * dy, points[j].h + i * dh);
             }
         }
 
@@ -68,7 +68,7 @@ public:
                                                                                        end_p(points_[points_.size() -
                                                                                                      1].make_similar()) {
         points = points_;
-        files_addres = f_add;
+        files_addres = std::move(f_add);
         path_step = ps;
 
         if (points_.size() < 2) {
@@ -77,31 +77,31 @@ public:
         build();
     }
 
-    CatmullROM() {}
+    CatmullROM() = default;
 
 private:
     Vec3D start_p, end_p;
 
-    void build();
+    void build() override;
 
-    static void InitCubicPoly(double x0, double x1, double t0, double t1, CubicPoly &p) {
+    static void init_cubic_poly(double x0, double x1, double t0, double t1, CubicPoly &p) {
         p.c0 = x0;
         p.c1 = t0;
         p.c2 = -3 * x0 + 3 * x1 - 2 * t0 - t1;
         p.c3 = 2 * x0 - 2 * x1 + t0 + t1;
     }
 
-    static void InitNonuniformCatmullRom(double x0, double x1, double x2, double x3, double dt0, double dt1, double dt2,
+    static void init_nonuniform_CatmullRom(double x0, double x1, double x2, double x3, double dt0, double dt1, double dt2,
                                          CubicPoly &p);
 
-    static float VecDistSquared(const Vec3D &p, const Vec3D &q) {
+    static double vec_dist_squared(const Vec3D &p, const Vec3D &q) {
         double dx = q.x - p.x;
         double dy = q.y - p.y;
         return dx * dx + dy * dy;
     }
 
     static void
-    InitCentripetalCR(const Vec3D &p0, const Vec3D &p1, const Vec3D &p2, const Vec3D &p3, CubicPoly &px, CubicPoly &py);
+    init_centripetal_CR(const Vec3D &p0, const Vec3D &p1, const Vec3D &p2, const Vec3D &p3, CubicPoly &px, CubicPoly &py);
 };
 
 #endif //FLIGHTCONTROLLER_LINES_H

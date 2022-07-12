@@ -20,6 +20,12 @@ struct CubicPoly {
     }
 };
 
+struct Vec2D {
+    double x, y; ///???? 2d 3d
+    double len() { return sqrt(x * x + y * y); }
+};
+
+
 //struct for working with a three-dimensional point
 struct Vec3D {
     double x, y, h;
@@ -35,7 +41,9 @@ struct Vec3D {
         return Vec3D{similar_digit(x), similar_digit(y), similar_digit(h)};
     }
 
-    double lenght(Vec3D vec) const {
+    std::string get_str() { return std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(h) + "\n"; }
+
+    double lengh(Vec3D vec) const {
         double degree_to_rad = double(M_PI / 180);
 
         double d_lat = (x - vec.x) * degree_to_rad;
@@ -83,6 +91,9 @@ public:
 
 };
 
-std::string add_time(std::string s);
+struct ErrorPair {
+    double dh;
+    double dFi;
+};
 
 #endif //FLIGHTCONTROLLER_STRUCTS_H
