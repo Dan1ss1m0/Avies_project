@@ -1,0 +1,3 @@
+C:/Users/HUAWEI/CLionProjects/take_off/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/HUAWEI/CLionProjects/take_off/cmake-build-debug/CMakeFiles/take_off.dir
+C:/Users/HUAWEI/CLionProjects/take_off/cmake-build-debug/CMakeFiles/rebuild_cache.dir
