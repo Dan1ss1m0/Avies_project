@@ -65,28 +65,37 @@ private:
     std::ofstream file;
     int shift = 0;
 public:
-    Log(std::string file_name) {
+    Log() {}
+
+    void init(std::string file_name){
         file.open(file_name);
     }
 
     void add_log(std::string text) {
-        for (int i = 0; i < shift; i++)
-            file << "|\t";
-        file << text << "\n";
+        if (file) {
+            for (int i = 0; i < shift; i++)
+                file << "|\t";
+            file << text << "\n";
+        }
     }
 
     void start_process(std::string text) {
-        add_log(text);
-        shift++;
+        if (file) {
+            add_log(text);
+            shift++;
+        }
     }
 
     void finish_process(std::string text = "finished successfully") {
-        shift--;
-        add_log(text);
+        if (file) {
+            shift--;
+            add_log(text);
+        }
     }
 
     ~Log() {
-        file.close();
+        if (file)
+            file.close();
     }
 
 };
@@ -95,5 +104,6 @@ struct ErrorPair {
     double dh;
     double dFi;
 };
+
 
 #endif //FLIGHTCONTROLLER_STRUCTS_H

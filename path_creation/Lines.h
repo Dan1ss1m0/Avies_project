@@ -3,6 +3,7 @@
 
 #include "libs.h"
 #include "structs.h"
+extern Log logs;
 
 //base calass for trajectory construction classes
 class Line {
@@ -31,7 +32,9 @@ public:
         if (points_.size() < 2) {
             throw "InitError: at least 2 points are required to construct the curve";
         }
+        logs.start_process("POPYLINE BUILDING");
         build();
+        logs.finish_process();
     }
 
     Polyline() = default;
@@ -74,7 +77,9 @@ public:
         if (points_.size() < 2) {
             throw "InitError: at least 2 points are required to construct the curve";
         }
+        logs.start_process("CATMULLROM BUILDING");
         build();
+        logs.finish_process();
     }
 
     CatmullROM() = default;
