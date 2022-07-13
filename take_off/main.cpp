@@ -8,9 +8,9 @@ public:
   void write(int pw);
 };
 
+//get_hight(...) and get_pitch(...) in INS_plug.cpp
+
 //прототипы функций оторые должны быть написаны нами
-double get_h(); //getting high
-double get_p(); //getting pitch in degrees
 double GY();    //перегрука по оси у (вдоль крыла) в ед g
 void set_coordinates();//считывает коодинаты по gps
 
@@ -41,9 +41,9 @@ void takeoff(double axx, double h ,double l){
     tone(piezoPin, 1500, 500);
     tone(piezoPin, 2000, 500);
     delay(100);
-    while (get_h() < h)
+    while (get_hight(/*current bar data*/) < h)
     {
-        ser_pitch.write(pitch.ctrl(rp,get_p()));
+        ser_pitch.write(pitch.ctrl(rp, get_pitch(/*current params*/)));
         ser_l.write(roll.ctrl(0,GY()));
         ser_r.write(-roll.ctrl(0,GY()));
     }
@@ -52,7 +52,7 @@ void takeoff(double axx, double h ,double l){
 
     for(int i=0; i<30; i++){ //short distance straight flight
         delay(t);
-        ser_pitch.write(pitch.ctrl(0,get_p()));
+        ser_pitch.write(pitch.ctrl(0, get_pitch(/*current params*/)));
         ser_l.write(roll.ctrl(0,GY()));
         ser_r.write(-roll.ctrl(0,GY()));
     }
