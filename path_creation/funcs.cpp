@@ -8,10 +8,11 @@ std::string add_time(std::string s) {
 }
 
 //calculate dh and dFi
-ErrorPair calc_errors(Vec3D target_point, Vec3D curr_pos, Vec3D curr_angels, Vec2D null_yaw_vector) {
+ErrorPair calc_errors(Vec3D target_point, Vec3D curr_pos, Vec3D prev_pos) {
     Vec2D curr_tar{target_point.x - curr_pos.x, target_point.y - curr_pos.y};
-    double Fi = acos((curr_tar.x * null_yaw_vector.x + curr_tar.y * null_yaw_vector.y) /
-                     (curr_tar.len() * null_yaw_vector.len()));
+    Vec2D speed_vec{ curr_pos.x - prev_pos.x, curr_pos.y - prev_pos.y };
+    double Fi = acos((curr_tar.x * speed_vec.x + curr_tar.y * speed_vec.y) /
+                     (curr_tar.len() * speed_vec.len()));
     return ErrorPair{target_point.h - curr_pos.h,
-                     Fi - curr_angels.x}; //in a connected frame of reference, the x-axis runs from the tail to the nose
+                     Fi - speed_vec.x}; //in a connected frame of reference, the x-axis runs from the tail to the nose
 }
