@@ -59,9 +59,9 @@ float get_yaw(float x, float y, float z, float roll, float pitch, bool filt=fals
 
 float T = 273+25, R = 8.31, M = 0.029, g = 9.8;
 float P0, h0;
-float get_h(float bar)
+float get_hight(float bar)
 {
-	return (R*T)/(M*g)*log(P0/P);
+	return (R*T)/(M*g)*log(P0/bar);
 }
 
 
